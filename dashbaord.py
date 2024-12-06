@@ -3,6 +3,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import altair as alt
 
+# Function to create a progress bar with custom colors
+def custom_progress_bar(value, target):
+    """Create a progress bar with dynamic color: green for below target, red for above."""
+    if value > target:
+        bar_color = "red"
+    else:
+        bar_color = "green"
+
+    bar_html = f"""
+    <div style="background-color: #e0e0df; border-radius: 5px; width: 100%; height: 20px;">
+        <div style="background-color: {bar_color}; width: {min(value / target * 100, 100)}%; height: 100%; border-radius: 5px;"></div>
+    </div>
+    """
+    st.markdown(bar_html, unsafe_allow_html=True)
+
 # Load data
 file_path = 'Sustainability_KPI_Data.xlsx'
 df = pd.read_excel(file_path)
@@ -24,9 +39,6 @@ st.markdown("""
             font-size: 18px;
             font-weight: bold;
         }
-        .progress-bar-red > div {
-            background-color: #FF4D4F !important;
-        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -43,7 +55,7 @@ energy_target = st.sidebar.slider("Energy Target (MTCO2e)", min_value=200000, ma
 transportation_target = st.sidebar.slider("Transportation Target (MTCO2e)", min_value=50000, max_value=120000, value=95000, step=5000)
 waste_target = st.sidebar.slider("Waste Target (MTCO2e)", min_value=20000, max_value=50000, value=40000, step=1000)
 
-# KPI Metrics with Progress Bars
+# KPI Metrics with Custom Progress Bars
 total_energy = filtered_df["Energy_Consumption_MtCO2e"].sum()
 total_transportation = filtered_df["Transportation_MtCO2e"].sum()
 total_waste = filtered_df["Waste_MtCO2e"].sum()
@@ -56,12 +68,7 @@ with st.container():
         st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
         st.markdown("<p class='metric-title'>Energy Consumption</p>", unsafe_allow_html=True)
         st.metric(label="MTCO2e", value=f"{total_energy:,.0f}")
-        if total_energy > energy_target:
-            st.markdown("<div class='progress-bar-red'>", unsafe_allow_html=True)
-            st.progress(1.0)
-            st.markdown("</div>", unsafe_allow_html=True)
-        else:
-            st.progress(total_energy / energy_target)  # Cap at 1.0
+        custom_progress_bar(total_energy, energy_target)
         st.markdown("</div>", unsafe_allow_html=True)
     
     # Transportation
@@ -69,12 +76,7 @@ with st.container():
         st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
         st.markdown("<p class='metric-title'>Transportation</p>", unsafe_allow_html=True)
         st.metric(label="MTCO2e", value=f"{total_transportation:,.0f}")
-        if total_transportation > transportation_target:
-            st.markdown("<div class='progress-bar-red'>", unsafe_allow_html=True)
-            st.progress(1.0)
-            st.markdown("</div>", unsafe_allow_html=True)
-        else:
-            st.progress(total_transportation / transportation_target)  # Cap at 1.0
+        custom_progress_bar(total_transportation, transportation_target)
         st.markdown("</div>", unsafe_allow_html=True)
 
     # Waste
@@ -82,12 +84,7 @@ with st.container():
         st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
         st.markdown("<p class='metric-title'>Waste</p>", unsafe_allow_html=True)
         st.metric(label="MTCO2e", value=f"{total_waste:,.0f}")
-        if total_waste > waste_target:
-            st.markdown("<div class='progress-bar-red'>", unsafe_allow_html=True)
-            st.progress(1.0)
-            st.markdown("</div>", unsafe_allow_html=True)
-        else:
-            st.progress(total_waste / waste_target)  # Cap at 1.0
+        custom_progress_bar(total_waste, waste_target)
         st.markdown("</div>", unsafe_allow_html=True)
 
 # Toggle for Graph Visibility
@@ -122,7 +119,7 @@ with st.container():
             st.markdown("<h3>Emissions by Category</h3>", unsafe_allow_html=True)
             categories = ["Energy", "Transportation", "Waste"]
             category_totals = [total_energy, total_transportation, total_waste]
-            fig, ax = plt.subplots(figsize=(3, 3))
+            fig, ax = plt.subplots(figsize=(2.5, 2.5))  # Adjusted size
             ax.pie(category_totals, labels=categories, autopct='%1.1f%%', startangle=140, colors=["#7FC97F", "#BEAED4", "#FDC086"])
             st.pyplot(fig)
 
@@ -136,6 +133,6 @@ with st.container():
                 filtered_df["Scope_3_MtCO2e"].sum(),
             ]
             scope_labels = ["Scope 1", "Scope 2", "Scope 3"]
-            fig, ax = plt.subplots(figsize=(3, 3))
+            fig, ax = plt.subplots(figsize=(2.5, 2.5))  # Adjusted size
             ax.pie(scope_totals, labels=scope_labels, autopct='%1.1f%%', startangle=140, colors=["#386CB0", "#F0027F", "#BF5B17"])
             st.pyplot(fig)
