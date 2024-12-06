@@ -77,7 +77,7 @@ with st.container():
 
     # Emissions Over Time
     with col1:
-        st.markdown("<h3 style='margin-top: 20px;'>📊 Emissions Over Time</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin-top: 20px;'> Emissions Over Time</h3>", unsafe_allow_html=True)
         fig, ax = plt.subplots(figsize=(6, 3))
         ax.fill_between(df["Month"], df["Energy_Consumption_MtCO2e"], label="Energy", alpha=0.6, color="#7FC97F")
         ax.fill_between(df["Month"], df["Transportation_MtCO2e"], label="Transportation", alpha=0.6, color="#BEAED4")
@@ -90,7 +90,7 @@ with st.container():
 
     # Emissions by Category
     with col2:
-        st.markdown("<h3 style='margin-top: 20px;'>📋 Emissions by Category</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin-top: 20px;'> Emissions by Category</h3>", unsafe_allow_html=True)
         categories = ["Energy", "Transportation", "Waste"]
         category_totals = [total_energy, total_transportation, total_waste]
         fig, ax = plt.subplots(figsize=(3, 3))
@@ -99,7 +99,7 @@ with st.container():
 
     # Emissions by Scope
     with col3:
-        st.markdown("<h3 style='margin-top: 20px;'>🔍 Emissions by Scope</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin-top: 20px;'> Emissions by Scope</h3>", unsafe_allow_html=True)
         scope_totals = [
             df["Scope_1_MtCO2e"].sum(),
             df["Scope_2_MtCO2e"].sum(),
