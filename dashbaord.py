@@ -25,24 +25,24 @@ with col2:
 with col3:
     st.metric(label="Waste (MTCO2e)", value=f"{total_waste:,.0f}", delta="Target: 34K")
 
-# Emissions Over Time (Line Chart)
+# Emissions Over Time (Area Chart)
 st.subheader("Emissions Over Time")
-fig, ax = plt.subplots(figsize=(10, 5))
-ax.plot(df["Month"], df["Energy_Consumption_MtCO2e"], label="Energy", marker='o')
-ax.plot(df["Month"], df["Transportation_MtCO2e"], label="Transportation", marker='o')
-ax.plot(df["Month"], df["Waste_MtCO2e"], label="Waste", marker='o')
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.fill_between(df["Month"], df["Energy_Consumption_MtCO2e"], label="Energy", alpha=0.6)
+ax.fill_between(df["Month"], df["Transportation_MtCO2e"], label="Transportation", alpha=0.6)
+ax.fill_between(df["Month"], df["Waste_MtCO2e"], label="Waste", alpha=0.6)
 ax.set_xlabel("Month")
 ax.set_ylabel("MTCO2e")
 ax.legend()
-ax.grid(True)
+ax.grid(True, linestyle="--", alpha=0.5)
 st.pyplot(fig)
 
 # Emissions by Category (Pie Chart)
 st.subheader("Emissions by Category")
-categories = ["Energy_Consumption_MtCO2e", "Transportation_MtCO2e", "Waste_MtCO2e"]
+categories = ["Energy", "Transportation", "Waste"]
 category_totals = [total_energy, total_transportation, total_waste]
-fig, ax = plt.subplots(figsize=(5, 5))
-ax.pie(category_totals, labels=["Energy", "Transportation", "Waste"], autopct='%1.1f%%', startangle=140)
+fig, ax = plt.subplots(figsize=(4, 4))
+ax.pie(category_totals, labels=categories, autopct='%1.1f%%', startangle=140, colors=["#7FC97F", "#BEAED4", "#FDC086"])
 st.pyplot(fig)
 
 # Emissions by Scope (Pie Chart)
@@ -52,6 +52,7 @@ scope_totals = [
     df["Scope_2_MtCO2e"].sum(),
     df["Scope_3_MtCO2e"].sum(),
 ]
-fig, ax = plt.subplots(figsize=(5, 5))
-ax.pie(scope_totals, labels=["Scope 1", "Scope 2", "Scope 3"], autopct='%1.1f%%', startangle=140)
+scope_labels = ["Scope 1", "Scope 2", "Scope 3"]
+fig, ax = plt.subplots(figsize=(4, 4))
+ax.pie(scope_totals, labels=scope_labels, autopct='%1.1f%%', startangle=140, colors=["#386CB0", "#F0027F", "#BF5B17"])
 st.pyplot(fig)
