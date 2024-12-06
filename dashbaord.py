@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import altair as alt
 
 # Load data
-file_path = 'Sustainability_KPI_Data.xlsx'
+file_path = 'Combined_Sustainability_KPI_Data.xlsx'
 df = pd.read_excel(file_path)
 
 # Set page configuration
@@ -31,7 +31,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Title
-st.markdown("<h1 style='text-align: center; margin-bottom: 30px;'>🌱 Sustainability KPI Dashboard</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; margin-bottom: 30px;'>Sustainability KPI Dashboard</h1>", unsafe_allow_html=True)
 
 # Dropdown for Year Selection
 selected_year = st.selectbox("Select Year:", options=df['Year'].unique())
@@ -99,12 +99,18 @@ show_scope_pie = st.checkbox("Show Emissions by Scope", value=True)
 with st.container():
     if show_emissions:
         st.markdown("<h3>Emissions Over Time</h3>", unsafe_allow_html=True)
-        chart = alt.Chart(filtered_df).mark_area(opacity=0.6).encode(
-            x=alt.X('Month', title='Month'),
-            y=alt.Y('value', title='MTCO2e'),
-            color=alt.Color('variable', scale=alt.Scale(scheme='category10'), legend=alt.Legend(title="Category"))
-        ).transform_fold(
-            ['Energy_Consumption_MtCO2e', 'Transportation_MtCO2e', 'Waste_MtCO2e']
+        # Prepare the data for Altair
+        emissions_data = filtered_df.melt(
+            id_vars=["Month"], 
+            value_vars=["Energy_Consumption_MtCO2e", "Transportation_MtCO2e", "Waste_MtCO2e"],
+            var_name="Category", 
+            value_name="Emissions"
+        )
+        # Create the Altair chart
+        chart = alt.Chart(emissions_data).mark_area(opacity=0.6).encode(
+            x=alt.X('Month:N', title='Month', sort=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]),
+            y=alt.Y('Emissions:Q', title='MTCO2e'),
+            color=alt.Color('Category:N', scale=alt.Scale(scheme='category10'), legend=alt.Legend(title="Category"))
         ).properties(width=600, height=300)
         st.altair_chart(chart)
 
