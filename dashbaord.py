@@ -19,7 +19,7 @@ def custom_progress_bar(value, target):
     st.markdown(bar_html, unsafe_allow_html=True)
 
 # Load data
-file_path = 'Sustainability_KPI_Data.xlsx'
+file_path = 'Combined_Sustainability_KPI_Data.xlsx'
 df = pd.read_excel(file_path)
 
 # Set page configuration
@@ -38,6 +38,8 @@ st.markdown("""
         .metric-title {
             font-size: 18px;
             font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -67,7 +69,7 @@ with st.container():
     with col1:
         st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
         st.markdown("<p class='metric-title'>Energy Consumption</p>", unsafe_allow_html=True)
-        st.metric(label="MTCO2e", value=f"{total_energy:,.0f}")
+        st.metric(label="", value=f"{total_energy:,.0f} MTCO2e")
         custom_progress_bar(total_energy, energy_target)
         st.markdown("</div>", unsafe_allow_html=True)
     
@@ -75,7 +77,7 @@ with st.container():
     with col2:
         st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
         st.markdown("<p class='metric-title'>Transportation</p>", unsafe_allow_html=True)
-        st.metric(label="MTCO2e", value=f"{total_transportation:,.0f}")
+        st.metric(label="", value=f"{total_transportation:,.0f} MTCO2e")
         custom_progress_bar(total_transportation, transportation_target)
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -83,7 +85,7 @@ with st.container():
     with col3:
         st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
         st.markdown("<p class='metric-title'>Waste</p>", unsafe_allow_html=True)
-        st.metric(label="MTCO2e", value=f"{total_waste:,.0f}")
+        st.metric(label="", value=f"{total_waste:,.0f} MTCO2e")
         custom_progress_bar(total_waste, waste_target)
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -103,11 +105,11 @@ with st.container():
             var_name="Category", 
             value_name="Emissions"
         )
-        # Create the Altair chart
+        # Create the Altair chart with pastel colors
         chart = alt.Chart(emissions_data).mark_area(opacity=0.6).encode(
             x=alt.X('Month:N', title='Month', sort=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]),
             y=alt.Y('Emissions:Q', title='MTCO2e'),
-            color=alt.Color('Category:N', scale=alt.Scale(scheme='category10'), legend=alt.Legend(title="Category"))
+            color=alt.Color('Category:N', scale=alt.Scale(range=["#A6CEE3", "#B2DF8A", "#FDBF6F"]), legend=alt.Legend(title="Category"))
         ).properties(width=600, height=300)
         st.altair_chart(chart)
 
@@ -119,8 +121,8 @@ with st.container():
             st.markdown("<h3>Emissions by Category</h3>", unsafe_allow_html=True)
             categories = ["Energy", "Transportation", "Waste"]
             category_totals = [total_energy, total_transportation, total_waste]
-            fig, ax = plt.subplots(figsize=(2.5, 2.5))  # Adjusted size
-            ax.pie(category_totals, labels=categories, autopct='%1.1f%%', startangle=140, colors=["#7FC97F", "#BEAED4", "#FDC086"])
+            fig, ax = plt.subplots(figsize=(3, 3))  # Same size for both pie charts
+            ax.pie(category_totals, labels=categories, autopct='%1.1f%%', startangle=140, colors=["#A6CEE3", "#B2DF8A", "#FDBF6F"])
             st.pyplot(fig)
 
     # Emissions by Scope
@@ -133,6 +135,6 @@ with st.container():
                 filtered_df["Scope_3_MtCO2e"].sum(),
             ]
             scope_labels = ["Scope 1", "Scope 2", "Scope 3"]
-            fig, ax = plt.subplots(figsize=(2.5, 2.5))  # Adjusted size
-            ax.pie(scope_totals, labels=scope_labels, autopct='%1.1f%%', startangle=140, colors=["#386CB0", "#F0027F", "#BF5B17"])
+            fig, ax = plt.subplots(figsize=(3, 3))  # Same size for both pie charts
+            ax.pie(scope_totals, labels=scope_labels, autopct='%1.1f%%', startangle=140, colors=["#FF9999", "#66B3FF", "#99FF99"])
             st.pyplot(fig)
