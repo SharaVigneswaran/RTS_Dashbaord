@@ -18,8 +18,8 @@ total_transportation = df["Transportation_MtCO2e"].sum()
 total_waste = df["Waste_MtCO2e"].sum()
 
 energy_target = 257000
-transportation_target = 78000
-waste_target = 34000
+transportation_target = 95000
+waste_target = 40000
 
 with st.container():
     col1, col2, col3 = st.columns(3)
