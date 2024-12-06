@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import altair as alt
 
 # Load data
-file_path = 'Sustainability_KPI_Data.xlsx'
-df = pd.read_excel(file_path, sheet_name='Sheet1')
+file_path = 'Combined_Sustainability_KPI_Data.xlsx'
+df = pd.read_excel(file_path)
 
 # Set page configuration
 st.set_page_config(page_title="Sustainability KPI Dashboard", layout="wide")
@@ -23,6 +23,9 @@ st.markdown("""
         .metric-title {
             font-size: 18px;
             font-weight: bold;
+        }
+        .progress-bar-red > div {
+            background-color: #FF4D4F !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -53,7 +56,12 @@ with st.container():
         st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
         st.markdown("<p class='metric-title'>Energy Consumption</p>", unsafe_allow_html=True)
         st.metric(label="MTCO2e", value=f"{total_energy:,.0f}")
-        st.progress(min(total_energy / energy_target, 1.0))  # Cap at 1.0
+        if total_energy > energy_target:
+            st.markdown("<div class='progress-bar-red'>", unsafe_allow_html=True)
+            st.progress(1.0)
+            st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            st.progress(total_energy / energy_target)  # Cap at 1.0
         st.markdown("</div>", unsafe_allow_html=True)
     
     # Transportation
@@ -61,7 +69,12 @@ with st.container():
         st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
         st.markdown("<p class='metric-title'>Transportation</p>", unsafe_allow_html=True)
         st.metric(label="MTCO2e", value=f"{total_transportation:,.0f}")
-        st.progress(min(total_transportation / transportation_target, 1.0))  # Cap at 1.0
+        if total_transportation > transportation_target:
+            st.markdown("<div class='progress-bar-red'>", unsafe_allow_html=True)
+            st.progress(1.0)
+            st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            st.progress(total_transportation / transportation_target)  # Cap at 1.0
         st.markdown("</div>", unsafe_allow_html=True)
 
     # Waste
@@ -69,7 +82,12 @@ with st.container():
         st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
         st.markdown("<p class='metric-title'>Waste</p>", unsafe_allow_html=True)
         st.metric(label="MTCO2e", value=f"{total_waste:,.0f}")
-        st.progress(min(total_waste / waste_target, 1.0))  # Cap at 1.0
+        if total_waste > waste_target:
+            st.markdown("<div class='progress-bar-red'>", unsafe_allow_html=True)
+            st.progress(1.0)
+            st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            st.progress(total_waste / waste_target)  # Cap at 1.0
         st.markdown("</div>", unsafe_allow_html=True)
 
 # Toggle for Graph Visibility
@@ -80,7 +98,7 @@ show_scope_pie = st.checkbox("Show Emissions by Scope", value=True)
 # Interactive Graphs
 with st.container():
     if show_emissions:
-        st.markdown("<h3>📊 Emissions Over Time</h3>", unsafe_allow_html=True)
+        st.markdown("<h3>Emissions Over Time</h3>", unsafe_allow_html=True)
         chart = alt.Chart(filtered_df).mark_area(opacity=0.6).encode(
             x=alt.X('Month', title='Month'),
             y=alt.Y('value', title='MTCO2e'),
@@ -95,7 +113,7 @@ with st.container():
     # Emissions by Category
     if show_category_pie:
         with col1:
-            st.markdown("<h3>📋 Emissions by Category</h3>", unsafe_allow_html=True)
+            st.markdown("<h3>Emissions by Category</h3>", unsafe_allow_html=True)
             categories = ["Energy", "Transportation", "Waste"]
             category_totals = [total_energy, total_transportation, total_waste]
             fig, ax = plt.subplots(figsize=(3, 3))
@@ -105,7 +123,7 @@ with st.container():
     # Emissions by Scope
     if show_scope_pie:
         with col2:
-            st.markdown("<h3>🔍 Emissions by Scope</h3>", unsafe_allow_html=True)
+            st.markdown("<h3>Emissions by Scope</h3>", unsafe_allow_html=True)
             scope_totals = [
                 filtered_df["Scope_1_MtCO2e"].sum(),
                 filtered_df["Scope_2_MtCO2e"].sum(),
