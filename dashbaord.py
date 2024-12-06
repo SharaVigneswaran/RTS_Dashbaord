@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import altair as alt
 
 # Load data
 file_path = 'Sustainability_KPI_Data.xlsx'
@@ -23,27 +24,27 @@ st.markdown("""
             font-size: 18px;
             font-weight: bold;
         }
-        .progress-bar {
-            background-color: #e8e8e8;
-            border-radius: 5px;
-            padding: 5px;
-        }
     </style>
 """, unsafe_allow_html=True)
 
 # Title
 st.markdown("<h1 style='text-align: center; margin-bottom: 30px;'>🌱 Sustainability KPI Dashboard</h1>", unsafe_allow_html=True)
 
+# Dropdown for Year Selection
+selected_year = st.selectbox("Select Year:", options=df['Year'].unique())
+filtered_df = df[df['Year'] == selected_year]
+
+# Dynamic Target Sliders
+st.sidebar.header("Adjust Targets")
+energy_target = st.sidebar.slider("Energy Target (MTCO2e)", min_value=200000, max_value=300000, value=257000, step=5000)
+transportation_target = st.sidebar.slider("Transportation Target (MTCO2e)", min_value=50000, max_value=120000, value=95000, step=5000)
+waste_target = st.sidebar.slider("Waste Target (MTCO2e)", min_value=20000, max_value=50000, value=40000, step=1000)
+
 # KPI Metrics with Progress Bars
-total_energy = df["Energy_Consumption_MtCO2e"].sum()
-total_transportation = df["Transportation_MtCO2e"].sum()
-total_waste = df["Waste_MtCO2e"].sum()
+total_energy = filtered_df["Energy_Consumption_MtCO2e"].sum()
+total_transportation = filtered_df["Transportation_MtCO2e"].sum()
+total_waste = filtered_df["Waste_MtCO2e"].sum()
 
-energy_target = 257000
-transportation_target = 95000
-waste_target = 40000
-
-# KPI Container
 with st.container():
     col1, col2, col3 = st.columns(3)
 
@@ -71,41 +72,46 @@ with st.container():
         st.progress(min(total_waste / waste_target, 1.0))  # Cap at 1.0
         st.markdown("</div>", unsafe_allow_html=True)
 
-# Graphs in a Compact Layout
-with st.container():
-    col1, col2, col3 = st.columns([2, 1, 1])
+# Toggle for Graph Visibility
+show_emissions = st.checkbox("Show Emissions Over Time", value=True)
+show_category_pie = st.checkbox("Show Emissions by Category", value=True)
+show_scope_pie = st.checkbox("Show Emissions by Scope", value=True)
 
-    # Emissions Over Time
-    with col1:
-        st.markdown("<h3 style='margin-top: 20px;'> Emissions Over Time</h3>", unsafe_allow_html=True)
-        fig, ax = plt.subplots(figsize=(6, 3))
-        ax.fill_between(df["Month"], df["Energy_Consumption_MtCO2e"], label="Energy", alpha=0.6, color="#7FC97F")
-        ax.fill_between(df["Month"], df["Transportation_MtCO2e"], label="Transportation", alpha=0.6, color="#BEAED4")
-        ax.fill_between(df["Month"], df["Waste_MtCO2e"], label="Waste", alpha=0.6, color="#FDC086")
-        ax.set_xlabel("Month", fontsize=12)
-        ax.set_ylabel("MTCO2e", fontsize=12)
-        ax.legend(fontsize=10)
-        ax.grid(True, linestyle="--", alpha=0.5)
-        st.pyplot(fig)
+# Interactive Graphs
+with st.container():
+    if show_emissions:
+        st.markdown("<h3>📊 Emissions Over Time</h3>", unsafe_allow_html=True)
+        chart = alt.Chart(filtered_df).mark_area(opacity=0.6).encode(
+            x=alt.X('Month', title='Month'),
+            y=alt.Y('value', title='MTCO2e'),
+            color=alt.Color('variable', scale=alt.Scale(scheme='category10'), legend=alt.Legend(title="Category"))
+        ).transform_fold(
+            ['Energy_Consumption_MtCO2e', 'Transportation_MtCO2e', 'Waste_MtCO2e']
+        ).properties(width=600, height=300)
+        st.altair_chart(chart)
+
+    col1, col2 = st.columns(2)
 
     # Emissions by Category
-    with col2:
-        st.markdown("<h3 style='margin-top: 20px;'> Emissions by Category</h3>", unsafe_allow_html=True)
-        categories = ["Energy", "Transportation", "Waste"]
-        category_totals = [total_energy, total_transportation, total_waste]
-        fig, ax = plt.subplots(figsize=(3, 3))
-        ax.pie(category_totals, labels=categories, autopct='%1.1f%%', startangle=140, colors=["#7FC97F", "#BEAED4", "#FDC086"])
-        st.pyplot(fig)
+    if show_category_pie:
+        with col1:
+            st.markdown("<h3>📋 Emissions by Category</h3>", unsafe_allow_html=True)
+            categories = ["Energy", "Transportation", "Waste"]
+            category_totals = [total_energy, total_transportation, total_waste]
+            fig, ax = plt.subplots(figsize=(3, 3))
+            ax.pie(category_totals, labels=categories, autopct='%1.1f%%', startangle=140, colors=["#7FC97F", "#BEAED4", "#FDC086"])
+            st.pyplot(fig)
 
     # Emissions by Scope
-    with col3:
-        st.markdown("<h3 style='margin-top: 20px;'> Emissions by Scope</h3>", unsafe_allow_html=True)
-        scope_totals = [
-            df["Scope_1_MtCO2e"].sum(),
-            df["Scope_2_MtCO2e"].sum(),
-            df["Scope_3_MtCO2e"].sum(),
-        ]
-        scope_labels = ["Scope 1", "Scope 2", "Scope 3"]
-        fig, ax = plt.subplots(figsize=(3, 3))
-        ax.pie(scope_totals, labels=scope_labels, autopct='%1.1f%%', startangle=140, colors=["#386CB0", "#F0027F", "#BF5B17"])
-        st.pyplot(fig)
+    if show_scope_pie:
+        with col2:
+            st.markdown("<h3>🔍 Emissions by Scope</h3>", unsafe_allow_html=True)
+            scope_totals = [
+                filtered_df["Scope_1_MtCO2e"].sum(),
+                filtered_df["Scope_2_MtCO2e"].sum(),
+                filtered_df["Scope_3_MtCO2e"].sum(),
+            ]
+            scope_labels = ["Scope 1", "Scope 2", "Scope 3"]
+            fig, ax = plt.subplots(figsize=(3, 3))
+            ax.pie(scope_totals, labels=scope_labels, autopct='%1.1f%%', startangle=140, colors=["#386CB0", "#F0027F", "#BF5B17"])
+            st.pyplot(fig)
