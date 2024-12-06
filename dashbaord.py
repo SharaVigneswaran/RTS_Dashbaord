@@ -53,7 +53,6 @@ with st.container():
         ax.set_xlabel("Month")
         ax.set_ylabel("MTCO2e")
         ax.legend()
-        ax.grid(True, linestyle="--", alpha=0.5)
         st.pyplot(fig)
 
     # Emissions by Category
