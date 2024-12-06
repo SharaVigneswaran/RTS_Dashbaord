@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import altair as alt
 
 # Load data
-file_path = 'Combined_Sustainability_KPI_Data.xlsx'
+file_path = 'Sustainability_KPI_Data.xlsx'
 df = pd.read_excel(file_path)
 
 # Set page configuration
