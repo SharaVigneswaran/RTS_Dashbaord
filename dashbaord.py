@@ -27,17 +27,17 @@ with st.container():
     with col1:
         st.markdown("**Energy Consumption**")
         st.metric(label="MTCO2e", value=f"{total_energy:,.0f}")
-        st.progress(total_energy / energy_target)
+        st.progress(min(total_energy / energy_target, 1.0))  # Cap at 1.0
     
     with col2:
         st.markdown("**Transportation**")
         st.metric(label="MTCO2e", value=f"{total_transportation:,.0f}")
-        st.progress(total_transportation / transportation_target)
+        st.progress(min(total_transportation / transportation_target, 1.0))  # Cap at 1.0
     
     with col3:
         st.markdown("**Waste**")
         st.metric(label="MTCO2e", value=f"{total_waste:,.0f}")
-        st.progress(total_waste / waste_target)
+        st.progress(min(total_waste / waste_target, 1.0))  # Cap at 1.0
 
 # Graphs in a Compact Layout
 with st.container():
